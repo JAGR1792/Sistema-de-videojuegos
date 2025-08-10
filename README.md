@@ -39,6 +39,24 @@ Este sistema está diseñado para ofrecer una experiencia completa a jugadores, 
 
 ---
 
+## 📈 Sistema de ranking
+
+El matchmaking utiliza un **sistema de puntuación tipo Elo** para evaluar la habilidad de cada jugador y generar emparejamientos equilibrados.
+
+- **Elo**: Método clásico de puntuación usado en ajedrez y muchos juegos competitivos. Ajusta el puntaje de cada jugador después de cada partida en función del resultado y la diferencia de nivel.
+
+- **TrueSkill**: Implementación avanzada desarrollada por Microsoft, que considera la incertidumbre en la habilidad del jugador y permite un emparejamiento más preciso en entornos multijugador.
+
+**Funcionamiento básico:**
+1. Todos los jugadores inician con un puntaje base.
+2. Después de cada partida, el puntaje se ajusta según el resultado (victoria, derrota o empate) y la dificultad del oponente.
+3. El sistema de matchmaking prioriza emparejar jugadores con puntajes similares para mantener la competitividad.
+
+El sistema está desacoplado mediante el patrón **Strategy**, lo que permite cambiar entre **Elo** y **TrueSkill** sin modificar el núcleo de la aplicación.
+
+
+---
+
 ## 🧱 Tecnologías utilizadas
 
 - **Backend:** Flask + SQLite 
