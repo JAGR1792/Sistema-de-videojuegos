@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Tienda de Items</h2>
+    <p>Compra items exclusivos para tus juegos favoritos.</p>
+    
+    <form method="GET" action="/store">
+        <label for="juego_select">Selecciona un juego:</label>
+        <select id="juego_select" name="juego" onchange="this.form.submit()">
+            <option value="" disabled selected>-- Selecciona --</option>
+            {% for j in juegos %}
+            <option value="{{ j.titulo }}" {% if j.titulo == juego_seleccionado %}selected{% endif %}>{{ j.titulo }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if items %}
+    <h3>Items Disponibles para {{ juego_seleccionado }}</h3>
+    <div class="items-grid">
+        {% for item in items %}
+        <div class="item-card">
+            <h4>{{ item.name }}</h4>
+            <p>Precio: ${{ item.price }}</p>
+            <form method="POST" action="/store/buy">
+                <input type="hidden" name="juego" value="{{ juego_seleccionado }}">
+                <input type="hidden" name="item" value="{{ item.name }}">
+                <button type="submit">Comprar</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% elif juego_seleccionado %}
+    <p>Este juego no tiene items a la venta o no soporta microtransacciones.</p>
+    {% endif %}
+
+    {% if mensaje %}
+    <div class="result-box">
+        {{ mensaje }}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .item-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        background: #f9f9f9;
+    }
+</style>
+{% endblock %}

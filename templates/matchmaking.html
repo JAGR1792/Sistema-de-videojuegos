@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Simulador de Matchmaking</h2>
+    <p>Tu ELO actual: <strong>{{ elo }}</strong></p>
+    
+    <form method="POST" action="/matchmaking">
+        <label for="titulo">Juego:</label>
+        <select id="titulo" name="titulo">
+            {% for juego in juegos %}
+            <option value="{{ juego.titulo }}">{{ juego.titulo }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="competitivo">Modo:</label>
+        <select id="competitivo" name="competitivo">
+            <option value="false">Casual (Aleatorio)</option>
+            <option value="true">Competitivo (Por Rango)</option>
+        </select>
+
+        <button type="submit">Buscar Partida</button>
+    </form>
+
+    {% if resultado %}
+    <div class="result-box">
+        <h3>Resultado:</h3>
+        <p>{{ resultado }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

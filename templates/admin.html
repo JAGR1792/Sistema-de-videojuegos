@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Panel de Administracion</h2>
+    <p>Gestion de usuarios y plataforma.</p>
+</div>
+
+<div class="card">
+    <h3>Gestion de Accesos Administrativos</h3>
+    <p>Crear nueva cuenta de administrador.</p>
+    <form method="POST" action="/admin/create_admin">
+        <label for="admin_username">Usuario Admin:</label>
+        <input type="text" id="admin_username" name="username" required>
+        
+        <label for="admin_password">Contrasena:</label>
+        <input type="password" id="admin_password" name="password" required>
+        
+        <button type="submit" style="background-color: #8e44ad;">Crear Administrador</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Registrar Nuevo Juego</h3>
+    <form method="POST" action="/admin/create_game">
+        <label for="titulo">Titulo:</label>
+        <input type="text" id="titulo" name="titulo" required>
+
+        <label for="desarrollador">Desarrollador:</label>
+        <input type="text" id="desarrollador" name="desarrollador" required>
+
+        <label for="precio">Precio:</label>
+        <input type="number" id="precio" name="precio" step="0.01" required>
+
+        <label for="plataforma">Plataforma:</label>
+        <select id="plataforma" name="plataforma">
+            <option value="PC">PC</option>
+            <option value="Console">Consola</option>
+            <option value="Mobile">Movil</option>
+        </select>
+
+        <label for="target">Target:</label>
+        <select id="target" name="target">
+            <option value="Everyone">Todos</option>
+            <option value="Teen">Adolescentes</option>
+            <option value="Mature">Adultos</option>
+        </select>
+
+        <label for="tipo">Tipo de Juego:</label>
+        <select id="tipo" name="tipo">
+            <option value="accion">Accion</option>
+            <option value="estrategia">Estrategia</option>
+            <option value="rol">Rol (RPG)</option>
+            <option value="deportes">Deportes</option>
+        </select>
+
+        <button type="submit">Registrar Juego</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Gestion de Usuarios</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>ELO (Rango)</th>
+                <th>Estado</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.elo }}</td>
+                <td>
+                    {% if user.is_banned %}
+                    <span style="color:red; font-weight:bold;">BANEADO</span>
+                    {% else %}
+                    <span style="color:green;">Activo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.role != 'admin' %}
+                    <form method="POST" action="/admin/ban_user" style="display:inline;">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <button type="submit" style="background-color: {% if user.is_banned %}#27ae60{% else %}#c0392b{% endif %}; margin:0; padding:5px;">
+                            {% if user.is_banned %}Desbanear{% else %}Banear{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

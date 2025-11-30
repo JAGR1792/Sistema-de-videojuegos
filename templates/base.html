@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Videojuegos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Plataforma de Videojuegos</h1>
+    </header>
+    <nav>
+        <a href="/">Inicio</a>
+        {% if session.get('user_id') %}
+            <a href="/games">Juegos</a>
+            <a href="/matchmaking">Matchmaking</a>
+            <a href="/store">Tienda</a>
+            <a href="/library">Biblioteca</a>
+            {% if session.get('role') == 'admin' %}
+                <a href="/admin" style="color: #e74c3c;">Admin Panel</a>
+            {% endif %}
+            <a href="/logout" style="margin-left: auto;">Salir ({{ session.get('username') }})</a>
+        {% else %}
+            <a href="/login">Iniciar Sesion</a>
+            <a href="/register">Registrarse</a>
+        {% endif %}
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

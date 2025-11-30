@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Mi Biblioteca</h2>
+    <p>Gestiona tus juegos, actualizalos y calificalos.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Juego</th>
+                <th>Plataforma</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for juego in juegos %}
+            <tr>
+                <td>{{ juego.titulo }}</td>
+                <td>{{ juego.plataforma }}</td>
+                <td>
+                    <form method="POST" action="/library/play" style="display:inline;">
+                        <input type="hidden" name="juego" value="{{ juego.titulo }}">
+                        <button type="submit" style="margin:0; padding:5px 10px; font-size:12px; background-color:#27ae60;">Jugar (Simular)</button>
+                    </form>
+                    <form method="POST" action="/library/update" style="display:inline;">
+                        <input type="hidden" name="juego" value="{{ juego.titulo }}">
+                        <button type="submit" style="margin:0; padding:5px 10px; font-size:12px;">Actualizar</button>
+                    </form>
+                    <button onclick="mostrarCalificar('{{ juego.titulo }}')" style="margin:0; padding:5px 10px; font-size:12px; background-color:#3498db;">Calificar</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if logs_juego %}
+    <div class="result-box" style="background-color: #2c3e50; color: #ecf0f1; border: 1px solid #34495e;">
+        <h3>Sesion de Juego: {{ juego_jugado }}</h3>
+        <ul>
+            {% for log in logs_juego %}
+            <li>{{ log }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if mensaje %}
+    <div class="result-box">
+        {{ mensaje }}
+    </div>
+    {% endif %}
+</div>
+
+<div id="calificarModal" class="card" style="display:none; margin-top:20px; border: 2px solid #3498db;">
+    <h3>Calificar <span id="modalJuegoTitulo"></span></h3>
+    <form method="POST" action="/library/rate">
+        <input type="hidden" id="rateJuego" name="juego">
+        <label>Usuario: <input type="text" name="usuario" required></label>
+        <label>Puntuacion (1-5): <input type="number" name="puntuacion" min="1" max="5" required></label>
+        <label>Comentario: <input type="text" name="comentario"></label>
+        <button type="submit">Enviar Calificacion</button>
+        <button type="button" onclick="document.getElementById('calificarModal').style.display='none'" style="background-color:#e74c3c;">Cancelar</button>
+    </form>
+</div>
+
+<script>
+function mostrarCalificar(titulo) {
+    document.getElementById('calificarModal').style.display = 'block';
+    document.getElementById('modalJuegoTitulo').innerText = titulo;
+    document.getElementById('rateJuego').value = titulo;
+}
+</script>
+{% endblock %}

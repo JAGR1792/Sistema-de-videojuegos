@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Biblioteca de Juegos</h2>
+    <p>Explora los titulos disponibles en nuestra plataforma.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Titulo</th>
+                <th>Desarrollador</th>
+                <th>Precio</th>
+                <th>Tipo</th>
+                <th>Plataforma</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for juego in juegos %}
+            <tr>
+                <td>{{ juego.titulo }}</td>
+                <td>{{ juego.desarrollador }}</td>
+                <td>${{ juego.precio }}</td>
+                <td>{{ juego.tipo }}</td>
+                <td>{{ juego.plataforma }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
