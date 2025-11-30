@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from src.services.plataforma import PlataformaVideojuegos
 from src.patterns.observer import SistemaLogros, SistemaActualizaciones, SistemaAnalisis
 from src.models.db import db
-from src.models.entities import User
+from src.models.entities import User, Game
 import os
 
 app = Flask(__name__)
@@ -37,6 +37,18 @@ with app.app_context():
         # Actualizar password si ya existe (para arreglar problemas de migracion de texto plano a hash)
         admin_user.password = hashed_password
         db.session.commit()
+
+    # Crear Juegos por defecto si no existen
+    if not Game.query.first():
+        juegos_default = [
+            Game(titulo="Genshin Impact", desarrollador="HoYoverse", precio=0.0, tipo="Rol", plataforma="PC", target="Teen"),
+            Game(titulo="EA FC 24", desarrollador="EA Sports", precio=69.99, tipo="Deportes", plataforma="PS5", target="Everyone"),
+            Game(titulo="Call of Duty: MW3", desarrollador="Activision", precio=69.99, tipo="Accion", plataforma="Xbox", target="Mature"),
+            Game(titulo="Civilization VI", desarrollador="Firaxis", precio=29.99, tipo="Estrategia", plataforma="PC", target="Everyone")
+        ]
+        db.session.add_all(juegos_default)
+        db.session.commit()
+        print("Juegos por defecto creados.")
 
 # Decorador para requerir login
 def login_required(f):

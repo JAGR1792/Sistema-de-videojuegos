@@ -13,12 +13,15 @@
     <nav>
         <a href="/">Inicio</a>
         {% if session.get('user_id') %}
-            <a href="/games">Juegos</a>
-            <a href="/matchmaking">Matchmaking</a>
-            <a href="/store">Tienda</a>
-            <a href="/library">Biblioteca</a>
             {% if session.get('role') == 'admin' %}
+                <!-- Menu exclusivo de Admin -->
                 <a href="/admin" style="color: #e74c3c;">Admin Panel</a>
+            {% else %}
+                <!-- Menu de Usuario Normal -->
+                <a href="/games">Juegos</a>
+                <a href="/matchmaking">Matchmaking</a>
+                <a href="/store">Tienda</a>
+                <a href="/library">Biblioteca</a>
             {% endif %}
             <a href="/logout" style="margin-left: auto;">Salir ({{ session.get('username') }})</a>
         {% else %}

@@ -1,7 +1,7 @@
 from .videojuego import Videojuego
 from .interfaces import Multijugador, ConMicrotransacciones, Actualizable, Calificable
 
-class JuegoAccion(Videojuego, Multijugador, Calificable):
+class JuegoAccion(Videojuego, Multijugador, Calificable, ConMicrotransacciones):
     def iniciar(self):
         return f"Iniciando motor de fisicas para {self.titulo}..."
 
@@ -22,6 +22,16 @@ class JuegoAccion(Videojuego, Multijugador, Calificable):
 
     def obtener_promedio_calificacion(self):
         return 4.5
+
+    def listar_items_venta(self):
+        return [
+            {"name": "Pack de Armas Tacticas", "price": 12.0},
+            {"name": "Camuflaje Oro", "price": 5.0},
+            {"name": "Pase de Batalla", "price": 10.0}
+        ]
+
+    def procesar_compra(self, item_id, usuario_id):
+        return f"Desbloqueando {item_id} en el armero para usuario {usuario_id}."
 
 class JuegoEstrategia(Videojuego, Multijugador, Actualizable):
     def iniciar(self):
@@ -57,9 +67,9 @@ class JuegoRol(Videojuego, ConMicrotransacciones, Actualizable):
 
     def listar_items_venta(self):
         return [
-            {"name": "Skin de Armadura", "price": 10.0},
-            {"name": "Pocion de XP", "price": 2.5},
-            {"name": "Montura Epica", "price": 25.0}
+            {"name": "Pack de 1000 Protogemas", "price": 15.0},
+            {"name": "Bendicion Lunar", "price": 5.0},
+            {"name": "Skin de Verano", "price": 20.0}
         ]
 
     def procesar_compra(self, item_id, usuario_id):
@@ -83,9 +93,9 @@ class JuegoDeportivo(Videojuego, Multijugador, ConMicrotransacciones, Calificabl
 
     def listar_items_venta(self):
         return [
-            {"name": "Sobre de Jugadores Oro", "price": 5.0},
-            {"name": "Pase de Temporada", "price": 10.0},
-            {"name": "Camiseta Retro", "price": 3.0}
+            {"name": "1000 FIFA Points", "price": 9.99},
+            {"name": "Equipacion Retro Real Madrid", "price": 4.99},
+            {"name": "Sobre Ultimate Team", "price": 2.99}
         ]
 
     def procesar_compra(self, item_id, usuario_id):

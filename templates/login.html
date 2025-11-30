@@ -12,21 +12,7 @@
         
         <button type="submit">Entrar</button>
     </form>
-    
-    <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
-        <small style="color: #7f8c8d;">Herramientas de Desarrollo:</small><br>
-        <button type="button" onclick="fillAdmin()" style="background-color: #34495e; font-size: 12px; padding: 5px 10px; margin-top: 5px;">
-            🔑 Autocompletar Admin
-        </button>
-    </div>
 
     <p>No tienes cuenta? <a href="/register">Registrate aqui</a></p>
 </div>
-
-<script>
-    function fillAdmin() {
-        document.getElementById('username').value = 'admin';
-        document.getElementById('password').value = '123';
-    }
-</script>
 {% endblock %}
