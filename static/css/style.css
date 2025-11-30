@@ -1,52 +1,95 @@
+/* Importar una fuente moderna (Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* Colores de la paleta */
+:root {
+    --primary-yellow: #FFC300; /* Amarillo Bonito */
+    --secondary-dark: #2c3e50; /* Oscuro para texto y headers */
+    --background-light: #FAFDFD; /* Fondo blanco roto suave */
+    --accent-mint: #1abc9c; /* Verde Menta para botones/acento */
+    --text-color: #333;
+    --card-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra suave */
+    --input-focus: 0 0 0 2px rgba(255, 195, 0, 0.4); /* Sombra de foco para inputs */
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-light);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
+    line-height: 1.6;
 }
 
 header {
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    padding: 1rem 0;
+    background-color: var(--primary-yellow); /* Utiliza el amarillo bonito */
+    color: var(--secondary-dark); /* Texto oscuro para buen contraste */
+    padding: 1.5rem 0;
     text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 nav {
     display: flex;
     justify-content: center;
-    background-color: #34495e;
-    padding: 0.5rem;
+    background-color: var(--secondary-dark);
+    padding: 0.75rem 0;
 }
 
 nav a {
-    color: #ecf0f1;
+    color: white;
     text-decoration: none;
-    margin: 0 15px;
-    font-weight: bold;
+    margin: 0 20px;
+    font-weight: 500; /* Ligeramente más grueso */
+    padding: 0.25rem 0.5rem;
+    position: relative;
+    transition: color 0.3s ease;
 }
 
 nav a:hover {
-    color: #3498db;
+    color: var(--primary-yellow); /* Cambio de color al hacer hover */
+}
+
+/* Indicador de hover moderno */
+nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-yellow);
+    transition: width 0.3s ease;
+}
+
+nav a:hover::after {
+    width: 100%;
 }
 
 .container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 20px;
+    max-width: 900px; /* Un poco más ancho */
+    margin: 3rem auto;
+    padding: 0 25px;
 }
 
 .card {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 12px; /* Más redondeado */
+    box-shadow: var(--card-shadow); /* Sombra suave */
+    padding: 30px;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px); /* Efecto 3D sutil al pasar el ratón */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
 h1, h2 {
-    color: #2c3e50;
+    color: var(--secondary-dark);
+    font-weight: 600;
 }
 
 form {
@@ -55,50 +98,78 @@ form {
 }
 
 label {
-    margin-top: 10px;
-    font-weight: bold;
+    margin-top: 15px;
+    font-weight: 600;
+    color: var(--secondary-dark);
+    margin-bottom: 5px;
 }
 
-input, select, button {
-    padding: 10px;
-    margin-top: 5px;
+input, select {
+    padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px; /* Redondeado */
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: var(--primary-yellow);
+    outline: none;
+    box-shadow: var(--input-focus);
 }
 
 button {
-    background-color: #27ae60;
+    background-color: var(--accent-mint); /* Verde menta para contraste moderno */
     color: white;
     border: none;
     cursor: pointer;
-    margin-top: 20px;
-    font-size: 16px;
+    margin-top: 25px;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 button:hover {
-    background-color: #2ecc71;
+    background-color: #16a085; /* Un tono más oscuro de menta */
+    transform: translateY(-1px);
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+    border-collapse: separate; /* Permite border-radius en celdas */
+    border-spacing: 0;
+    margin-top: 25px;
+    border-radius: 8px; /* Bordes redondeados en la tabla */
+    overflow: hidden; /* Asegura que los bordes redondeados se muestren */
+    box-shadow: var(--card-shadow);
 }
 
 th, td {
     text-align: left;
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
+    padding: 15px;
+    border-bottom: 1px solid #eee; /* Línea más sutil */
 }
 
 th {
-    background-color: #f2f2f2;
+    background-color: #f7f7f7;
+    color: var(--secondary-dark);
+    font-weight: 600;
+}
+
+/* Quitar el borde inferior de la última fila */
+tr:last-child td {
+    border-bottom: none;
 }
 
 .result-box {
-    background-color: #e8f6f3;
-    border: 1px solid #a2d9ce;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 4px;
+    background-color: #fff9e6; /* Fondo amarillo muy claro */
+    border: 1px solid var(--primary-yellow);
+    color: var(--secondary-dark);
+    padding: 20px;
+    margin-top: 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(255, 195, 0, 0.2);
 }

@@ -23,11 +23,19 @@ plataforma.agregar_observer(SistemaAnalisis())
 # Crear tablas al inicio
 with app.app_context():
     db.create_all()
-    # Crear admin por defecto si no existe
-    if not User.query.filter_by(username='admin').first():
-        hashed_password = generate_password_hash('123')
+    
+    # Gestionar usuario admin
+    admin_user = User.query.filter_by(username='admin').first()
+    hashed_password = generate_password_hash('123')
+    
+    if not admin_user:
+        # Crear si no existe
         admin = User(username='admin', password=hashed_password, role='admin', elo=9999)
         db.session.add(admin)
+        db.session.commit()
+    else:
+        # Actualizar password si ya existe (para arreglar problemas de migracion de texto plano a hash)
+        admin_user.password = hashed_password
         db.session.commit()
 
 # Decorador para requerir login
