@@ -5,6 +5,7 @@ from src.models.interfaces import ConMicrotransacciones, Actualizable, Calificab
 from src.models.db import db
 from src.models.entities import Game, User, Purchase, Rating
 from src.models.implementaciones import JuegoAccion, JuegoEstrategia, JuegoRol, JuegoDeportivo
+from functools import lru_cache
 
 class PlataformaVideojuegos(Subject):
     def __init__(self):
@@ -31,10 +32,15 @@ class PlataformaVideojuegos(Subject):
         db.session.add(nuevo_juego)
         db.session.commit()
         
+        # Invalidamos cache al agregar nuevo contenido
+        self.listar_juegos.cache_clear()
+        
         self.notificar_observers("juego_lanzado", {"juego": titulo, "plataforma": plataforma})
         return nuevo_juego
 
+    @lru_cache(maxsize=32)
     def listar_juegos(self):
+        print("[CACHE MISS] Consultando DB para listar juegos...")
         juegos = Game.query.all()
         return [j.obtener_info() for j in juegos]
 
@@ -72,7 +78,7 @@ class PlataformaVideojuegos(Subject):
         
         if isinstance(juego_logico, ConMicrotransacciones):
             # Buscar precio base del item
-            items = juego_logico.listar_items_venta()
+            items = self.obtener_items_venta(titulo_juego) # Usamos el metodo con cache
             item_data = next((i for i in items if i['name'] == item_name), None)
             
             if item_data:
@@ -92,7 +98,9 @@ class PlataformaVideojuegos(Subject):
         else:
             return "Este juego no soporta microtransacciones."
 
+    @lru_cache(maxsize=64)
     def obtener_items_venta(self, titulo_juego):
+        print(f"[CACHE MISS] Generando items para {titulo_juego}...")
         juego_db = Game.query.filter_by(titulo=titulo_juego).first()
         if not juego_db: 
             return []

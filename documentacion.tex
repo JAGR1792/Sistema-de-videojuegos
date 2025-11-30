@@ -1,0 +1,101 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+}
+
+\title{Parcial final Estructuras de Datos no Lineales}
+\author{Jorge Antonio García Romero}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introducción}
+Este documento detalla la implementación de una plataforma de videojuegos diseñada bajo principios de Programación Orientada a Objetos (POO) y patrones de diseño avanzados. El objetivo es cumplir con los requisitos de un sistema robusto, escalable y mantenible, capaz de gestionar juegos, usuarios, transacciones y eventos en tiempo real.
+
+\section{Arquitectura del Sistema}
+El sistema se ha construido utilizando Python y el framework Flask para la capa web, con SQLAlchemy como ORM para la persistencia de datos. La arquitectura sigue un enfoque modular, separando claramente los modelos, servicios y patrones de diseño.
+
+\subsection{Clase Abstracta: Videojuego}
+La base del sistema es la clase abstracta \texttt{Videojuego}, que define la estructura común para todos los juegos en la plataforma. Esta clase garantiza que todos los juegos implementen métodos esenciales como \texttt{iniciar}, \texttt{guardar\_progreso} y \texttt{cargar\_progreso}.
+
+\begin{lstlisting}[language=Python, caption=Clase Abstracta Videojuego]
+class Videojuego(ABC):
+    def __init__(self, titulo, desarrollador, precio, plataforma="PC", target="Teen"):
+        self.titulo = titulo
+        self.desarrollador = desarrollador
+        # ...
+    
+    @abstractmethod
+    def iniciar(self): pass
+\end{lstlisting}
+
+\section{Interfaces Principales}
+Para dotar de capacidades específicas a los juegos sin recurrir a una herencia múltiple compleja y rígida, se han definido interfaces (clases abstractas puras en Python) que actúan como contratos.
+
+\begin{itemize}
+    \item \textbf{Multijugador:} Obliga a implementar \texttt{buscar\_partida} y \texttt{conectar\_jugadores}.
+    \item \textbf{ConMicrotransacciones:} Define métodos para \texttt{listar\_items\_venta} y \texttt{procesar\_compra}.
+    \item \textbf{Actualizable:} Permite gestionar el ciclo de vida del software mediante \texttt{verificar\_actualizacion}.
+    \item \textbf{Calificable:} Habilita el sistema de reseñas y puntuaciones.
+\end{itemize}
+
+\section{Implementaciones Concretas}
+Se han desarrollado clases concretas que heredan de \texttt{Videojuego} e implementan diversas combinaciones de interfaces, demostrando el polimorfismo del sistema.
+
+\begin{itemize}
+    \item \textbf{JuegoAccion:} Implementa \texttt{Multijugador} y \texttt{ConMicrotransacciones}. Enfocado en partidas rápidas.
+    \item \textbf{JuegoEstrategia:} Implementa \texttt{Multijugador} y \texttt{Actualizable}. Requiere lógica de balanceo constante.
+    \item \textbf{JuegoRol (RPG):} Implementa \texttt{ConMicrotransacciones} y \texttt{Actualizable}. Se centra en expansiones de contenido.
+    \item \textbf{JuegoDeportivo:} Implementa casi todas las interfaces, simulando juegos anuales como FIFA.
+\end{itemize}
+
+\section{Patrones de Diseño Aplicados}
+
+\subsection{Factory Method}
+El patrón Factory se utiliza para la creación de instancias de juegos. La clase \texttt{JuegoFactory} encapsula la lógica de instanciación, permitiendo crear objetos complejos (como un \texttt{JuegoRol} con todas sus configuraciones) a partir de una simple cadena de texto ("RPG", "Rol"). Esto desacopla la creación de objetos de su uso.
+
+\subsection{Strategy}
+Se emplea el patrón Strategy para definir familias de algoritmos intercambiables.
+\begin{itemize}
+    \item \textbf{Matchmaking:} Estrategias como \texttt{MatchmakingAleatorio} y \texttt{MatchmakingPorRango} permiten cambiar la lógica de emparejamiento sin modificar la clase principal.
+    \item \textbf{Monetización:} Estrategias como \texttt{MonetizacionPremium}, \texttt{MonetizacionF2P} y \texttt{MonetizacionDescuento} gestionan dinámicamente los precios.
+\end{itemize}
+
+\subsection{Observer}
+El patrón Observer es fundamental para el sistema de eventos. La clase \texttt{PlataformaVideojuegos} actúa como \texttt{Subject}, notificando a los observadores cuando ocurren eventos clave.
+\begin{itemize}
+    \item \textbf{SistemaLogros:} Escucha eventos como "partida\_terminada" para otorgar logros a los usuarios. Implementa lógica probabilística para logros raros.
+    \item \textbf{SistemaActualizaciones:} Reacciona al lanzamiento de juegos para programar parches.
+\end{itemize}
+
+\section{Optimización y Eficiencia (Mejoras Realistas)}
+En un entorno de producción real, el acceso constante a la base de datos para información estática es ineficiente. Se han implementado mejoras de rendimiento utilizando técnicas de caché.
+
+\subsection{LRU Cache (Least Recently Used)}
+Se ha integrado \texttt{functools.lru\_cache} en los servicios de lectura intensiva.
+\begin{itemize}
+    \item \textbf{Listado de Juegos:} La función \texttt{listar\_juegos} ahora cachea sus resultados. Esto reduce drásticamente la latencia en la página principal, ya que el catálogo de juegos no cambia milisegundo a milisegundo.
+    \item \textbf{Microtransacciones:} La obtención de ítems de venta (\texttt{obtener\_items\_venta}) también está cacheada, agilizando la tienda virtual.
+\end{itemize}
+
+\subsection{Invalidación de Caché}
+Para mantener la consistencia de datos, se ha implementado una estrategia de invalidación de caché. Cuando se registra un nuevo juego mediante \texttt{registrar\_juego}, se fuerza la limpieza de la caché de \texttt{listar\_juegos}, asegurando que los usuarios siempre vean el catálogo actualizado sin sacrificar rendimiento en las lecturas subsiguientes.
+
+\section{Conclusión}
+El sistema resultante es una demostración completa de cómo los patrones de diseño y las estructuras de datos adecuadas pueden resolver problemas complejos de ingeniería de software. La inclusión de optimizaciones como LRU Cache acerca el proyecto a un escenario de "vida real", donde la eficiencia es tan crítica como la funcionalidad.
+
+\end{document}
