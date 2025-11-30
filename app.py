@@ -70,7 +70,12 @@ def admin_required(f):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    juegos_destacados = []
+    if 'user_id' in session:
+        # Si esta logueado, mostramos algunos juegos para acceso rapido (simulando "Tus Juegos")
+        # En un sistema real, filtrariamos por compras. Aqui mostramos los primeros 3.
+        juegos_destacados = plataforma.listar_juegos()[:3]
+    return render_template('index.html', juegos_destacados=juegos_destacados)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -8,13 +8,15 @@ class JuegoFactory:
         # si actualizamos las implementaciones para llamar a super().__init__ correctamente.
         
         juego = None
-        if tipo == "accion":
+        tipo = tipo.lower() # Normalizar a minusculas
+        
+        if tipo in ["accion", "acción", "action"]:
             juego = JuegoAccion(titulo, desarrollador, precio)
-        elif tipo == "estrategia":
+        elif tipo in ["estrategia", "strategy"]:
             juego = JuegoEstrategia(titulo, desarrollador, precio)
-        elif tipo == "rol":
+        elif tipo in ["rol", "rpg"]:
             juego = JuegoRol(titulo, desarrollador, precio)
-        elif tipo == "deportes":
+        elif tipo in ["deportes", "sports"]:
             juego = JuegoDeportivo(titulo, desarrollador, precio)
         else:
             raise ValueError(f"Tipo de juego desconocido: {tipo}")

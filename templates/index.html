@@ -2,12 +2,33 @@
 
 {% block content %}
 <div class="card">
-    <h2>Bienvenido</h2>
-    <p>Esta es la interfaz de gestion para la Plataforma de Videojuegos.</p>
-    <p>Utilice el menu de navegacion para acceder a las funcionalidades:</p>
-    <ul>
-        <li><strong>Juegos:</strong> Ver la biblioteca y registrar nuevos titulos.</li>
-        <li><strong>Matchmaking:</strong> Simular la busqueda de partidas para jugadores.</li>
-    </ul>
+    <h2>Bienvenido a tu Plataforma</h2>
+    <p>Explora, juega y compite en el mejor ecosistema gamer.</p>
 </div>
+
+{% if session.get('user_id') and juegos_destacados %}
+<div class="container" style="margin-top: 20px; padding: 0;">
+    <h3 style="color: #2c3e50;">🎮 Acceso Rápido (Tus Juegos)</h3>
+    <div class="items-grid">
+        {% for juego in juegos_destacados %}
+        <div class="item-card" style="text-align: left; border-left: 5px solid #27ae60;">
+            <h4>{{ juego.titulo }}</h4>
+            <p><small>{{ juego.tipo }} | {{ juego.plataforma }}</small></p>
+            <form method="POST" action="/library/play">
+                <input type="hidden" name="juego" value="{{ juego.titulo }}">
+                <button type="submit" class="btn-small btn-play" style="width: 100%; margin-top: 10px;">▶ Jugar Ahora</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if not session.get('user_id') %}
+<div class="card">
+    <h3>¿Listo para jugar?</h3>
+    <p>Inicia sesión para acceder a tu biblioteca y matchmaking.</p>
+    <a href="/login"><button>Iniciar Sesión</button></a>
+</div>
+{% endif %}
 {% endblock %}

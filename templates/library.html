@@ -71,11 +71,19 @@
     <h3>Calificar <span id="modalJuegoTitulo"></span></h3>
     <form method="POST" action="/library/rate">
         <input type="hidden" id="rateJuego" name="juego">
-        <label>Usuario: <input type="text" name="usuario" required></label>
-        <label>Puntuacion (1-5): <input type="number" name="puntuacion" min="1" max="5" required></label>
-        <label>Comentario: <input type="text" name="comentario"></label>
+        <!-- Usuario se toma de la sesion -->
+        <label>Puntuacion (1-5):</label>
+        <select name="puntuacion" required>
+            <option value="5">5 - Excelente</option>
+            <option value="4">4 - Bueno</option>
+            <option value="3">3 - Regular</option>
+            <option value="2">2 - Malo</option>
+            <option value="1">1 - Terrible</option>
+        </select>
+        <label>Comentario:</label>
+        <input type="text" name="comentario" placeholder="Escribe tu opinion...">
         <button type="submit">Enviar Calificacion</button>
-        <button type="button" onclick="document.getElementById('calificarModal').style.display='none'" style="background-color:#e74c3c;">Cancelar</button>
+        <button type="button" onclick="document.getElementById('calificarModal').style.display='none'" class="btn-cancel">Cancelar</button>
     </form>
 </div>
 
