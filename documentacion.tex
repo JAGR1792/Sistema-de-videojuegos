@@ -1,101 +1,429 @@
-\documentclass{article}
+\documentclass[12pt, a4paper]{report}
 \usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
 \usepackage{geometry}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
 \usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
 
+% Configuración de geometría
 \geometry{
- a4paper,
- total={170mm,257mm},
- left=20mm,
- top=20mm,
+ left=25mm,
+ right=25mm,
+ top=25mm,
+ bottom=25mm,
 }
 
-\title{Parcial final Estructuras de Datos no Lineales}
-\author{Jorge Antonio García Romero}
-\date{\today}
+% Configuración de enlaces (Adiós cajas feas)
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=blue!60!black,
+    pdftitle={Documentación Final EDNL},
+    pdfauthor={Jorge Antonio García Romero}
+}
+
+% Configuración de código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Configuración de encabezados
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Parcial Final EDNL}
+\lhead{Jorge Antonio García Romero}
+\rfoot{Página \thepage}
+
+\title{
+    \vspace{2cm}
+    \Huge \textbf{Sistema de Gestión de Plataforma de Videojuegos} \\
+    \vspace{1cm}
+    \Large Parcial Final de Estructuras de Datos no Lineales \\
+    \vspace{2cm}
+    \large \textbf{Autor:} \\
+    Jorge Antonio García Romero \\
+    \vspace{1cm}
+    \large \textbf{Fecha:} \\
+    28/11/2025
+}
+\author{}
+\date{}
 
 \begin{document}
 
 \maketitle
 
+\begin{abstract}
+    El presente documento constituye la memoria técnica y académica detallada del proyecto final para la asignatura de Estructuras de Datos no Lineales. Se describe el diseño, implementación y optimización de una plataforma de videojuegos escalable, desarrollada en Python utilizando el framework Flask. El sistema integra múltiples patrones de diseño de software (Factory, Strategy, Observer), principios SOLID, persistencia de datos relacional mediante SQLAlchemy y técnicas de optimización de rendimiento como caché LRU. El objetivo principal es demostrar la aplicación práctica de conceptos teóricos avanzados en un escenario de ingeniería de software realista, priorizando la mantenibilidad, la extensibilidad y la eficiencia computacional.
+\end{abstract}
+
 \tableofcontents
 \newpage
 
-\section{Introducción}
-Este documento detalla la implementación de una plataforma de videojuegos diseñada bajo principios de Programación Orientada a Objetos (POO) y patrones de diseño avanzados. El objetivo es cumplir con los requisitos de un sistema robusto, escalable y mantenible, capaz de gestionar juegos, usuarios, transacciones y eventos en tiempo real.
+\chapter{Introducción y Objetivos}
 
-\section{Arquitectura del Sistema}
-El sistema se ha construido utilizando Python y el framework Flask para la capa web, con SQLAlchemy como ORM para la persistencia de datos. La arquitectura sigue un enfoque modular, separando claramente los modelos, servicios y patrones de diseño.
+\section{Contexto del Proyecto}
+En el ámbito de la ingeniería de software moderna, la construcción de sistemas complejos requiere más que simplemente escribir código funcional. Requiere una arquitectura sólida que pueda soportar cambios futuros, escalar con la demanda del usuario y mantener un rendimiento óptimo. Este proyecto simula el backend y frontend de una plataforma de distribución de videojuegos digital (similar a Steam o Epic Games Store), enfrentando desafíos comunes como la gestión de usuarios, la diversidad de tipos de productos y la respuesta a eventos en tiempo real.
 
-\subsection{Clase Abstracta: Videojuego}
-La base del sistema es la clase abstracta \texttt{Videojuego}, que define la estructura común para todos los juegos en la plataforma. Esta clase garantiza que todos los juegos implementen métodos esenciales como \texttt{iniciar}, \texttt{guardar\_progreso} y \texttt{cargar\_progreso}.
+\section{Objetivos Académicos}
+\begin{itemize}
+    \item \textbf{Aplicación de POO Avanzada:} Utilizar herencia, polimorfismo y encapsulamiento para modelar entidades complejas.
+    \item \textbf{Implementación de Patrones de Diseño:} Demostrar el uso de patrones GoF (Gang of Four) para resolver problemas de diseño recurrentes.
+    \item \textbf{Persistencia de Datos:} Gestionar relaciones entre entidades (Usuarios, Juegos, Compras) mediante un ORM.
+    \item \textbf{Optimización:} Implementar estructuras y algoritmos que mejoren la complejidad temporal de las operaciones críticas.
+\end{itemize}
 
-\begin{lstlisting}[language=Python, caption=Clase Abstracta Videojuego]
+\chapter{Marco Teórico y Arquitectura}
+
+\section{Principios SOLID}
+El diseño del sistema se adhiere estrictamente a los principios SOLID:
+\begin{itemize}
+    \item \textbf{S (Single Responsibility):} Cada clase tiene una única razón para cambiar. Por ejemplo, \texttt{JuegoFactory} solo se encarga de crear juegos, no de gestionarlos.
+    \item \textbf{O (Open/Closed):} El sistema está abierto a la extensión (nuevos tipos de juegos) pero cerrado a la modificación. Agregar un nuevo género no rompe el código existente.
+    \item \textbf{L (Liskov Substitution):} Las subclases como \texttt{JuegoRol} pueden sustituir a la clase base \texttt{Videojuego} sin alterar la corrección del programa.
+    \item \textbf{I (Interface Segregation):} Se utilizan interfaces específicas (\texttt{Multijugador},
+    \newline
+    \texttt{Con Microtransacciones}) en lugar de una interfaz gigante.
+    \item \textbf{D (Dependency Inversion):} Los módulos de alto nivel dependen de abstracciones, no de implementaciones concretas.
+\end{itemize}
+
+\section{Arquitectura MVC (Modelo-Vista-Controlador)}
+Aunque Flask es un micro-framework, he estructurado la aplicación siguiendo MVC:
+\begin{itemize}
+    \item \textbf{Modelos (\texttt{src/models}):} Definen la estructura de los datos y la lógica de negocio fundamental.
+    \item \textbf{Vistas (\texttt{templates}):} Archivos HTML con Jinja2 que renderizan la interfaz de usuario.
+    \item \textbf{Controladores (\texttt{app.py} y \texttt{src/services}):} Gestionan las peticiones HTTP, orquestan los servicios y retornan las respuestas.
+\end{itemize}
+
+\chapter{Diseño Detallado del Sistema}
+
+\section{Abstracción y Polimorfismo}
+La piedra angular del modelo de dominio es la clase abstracta \texttt{Videojuego}. Al heredar de \texttt{ABC} (Abstract Base Class), forzamos un contrato que todas las subclases deben cumplir.
+
+\begin{lstlisting}[language=Python, caption=Clase Base Videojuego]
 class Videojuego(ABC):
     def __init__(self, titulo, desarrollador, precio, plataforma="PC", target="Teen"):
         self.titulo = titulo
         self.desarrollador = desarrollador
+        self.precio = precio
         # ...
     
     @abstractmethod
     def iniciar(self): pass
 \end{lstlisting}
 
-\section{Interfaces Principales}
-Para dotar de capacidades específicas a los juegos sin recurrir a una herencia múltiple compleja y rígida, se han definido interfaces (clases abstractas puras en Python) que actúan como contratos.
+Esto permite tratar a todos los juegos de manera uniforme en listas y funciones, invocando \texttt{iniciar()} sin conocer el tipo específico de juego en tiempo de compilación (Polimorfismo).
+
+\section{Interfaces como Contratos de Capacidad}
+Python no tiene interfaces explícitas como Java, pero las simulamos mediante clases abstractas puras. Esto permite una composición flexible de funcionalidades.
 
 \begin{itemize}
-    \item \textbf{Multijugador:} Obliga a implementar \texttt{buscar\_partida} y \texttt{conectar\_jugadores}.
-    \item \textbf{ConMicrotransacciones:} Define métodos para \texttt{listar\_items\_venta} y \texttt{procesar\_compra}.
-    \item \textbf{Actualizable:} Permite gestionar el ciclo de vida del software mediante \texttt{verificar\_actualizacion}.
-    \item \textbf{Calificable:} Habilita el sistema de reseñas y puntuaciones.
+    \item \textbf{Multijugador:} Define \texttt{buscar\_partida()}.
+    \item \textbf{ConMicrotransacciones:} Define \texttt{listar\_items\_venta()}.
 \end{itemize}
 
-\section{Implementaciones Concretas}
-Se han desarrollado clases concretas que heredan de \texttt{Videojuego} e implementan diversas combinaciones de interfaces, demostrando el polimorfismo del sistema.
+Un \texttt{JuegoAccion} puede ser \texttt{Multijugador} y tener \texttt{Microtransacciones}, mientras que un \texttt{JuegoIndie} podría no implementar ninguna. Esto evita la herencia múltiple compleja y el problema del diamante.
 
+\chapter{Implementación Tecnológica Full-Stack}
+
+\section{Backend: Arquitectura de Servicios con Flask}
+El backend actúa como el orquestador del sistema, conectando la interfaz de usuario con la lógica de negocio y la base de datos. Se ha seleccionado \textbf{Flask} por su ligereza y flexibilidad, permitiendo una implementación limpia del patrón MVC.
+
+\subsection{Gestión de Rutas y Controladores}
+Cada interacción del usuario se mapea a una función controladora mediante decoradores \texttt{@app.route}. Estos controladores no contienen lógica de negocio compleja; su responsabilidad se limita a:
+\begin{enumerate}
+    \item Recibir la petición HTTP (GET/POST).
+    \item Extraer datos del formulario o sesión.
+    \item Invocar métodos del servicio \texttt{PlataformaVideojuegos}.
+    \item Renderizar la plantilla adecuada o redirigir.
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Ejemplo de Controlador]
+@app.route('/library/play', methods=['POST'])
+def play_game():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    # Delegacion al servicio (Capa de Negocio)
+    resultado = plataforma.buscar_partida(...)
+    return render_template('play.html', result=resultado)
+\end{lstlisting}
+
+\subsection{Gestión de Estado y Sesiones}
+Dado que HTTP es un protocolo sin estado (stateless), utilizamos \texttt{flask.session} (firmada criptográficamente) para mantener la identidad del usuario entre peticiones. Esto es crucial para funcionalidades como el carrito de compras o el seguimiento de logros en tiempo real.
+
+\section{Frontend: Motor de Plantillas Jinja2}
+La capa de presentación se construye dinámicamente en el servidor utilizando \textbf{Jinja2}. Esto permite separar la estructura HTML de los datos, facilitando el mantenimiento.
+
+\subsection{Herencia de Plantillas}
+Para evitar la duplicación de código (DRY - Don't Repeat Yourself), implementamos un sistema de herencia.
 \begin{itemize}
-    \item \textbf{JuegoAccion:} Implementa \texttt{Multijugador} y \texttt{ConMicrotransacciones}. Enfocado en partidas rápidas.
-    \item \textbf{JuegoEstrategia:} Implementa \texttt{Multijugador} y \texttt{Actualizable}. Requiere lógica de balanceo constante.
-    \item \textbf{JuegoRol (RPG):} Implementa \texttt{ConMicrotransacciones} y \texttt{Actualizable}. Se centra en expansiones de contenido.
-    \item \textbf{JuegoDeportivo:} Implementa casi todas las interfaces, simulando juegos anuales como FIFA.
+    \item \textbf{base.html:} Define la estructura esqueleto (Header, Navbar, Footer, importaciones CSS/JS).
+    \item \textbf{Hijas (index.html, library.html):} Extienden \texttt{base.html} e inyectan contenido específico en bloques definidos (\texttt{\{\% block content \%\}}).
 \end{itemize}
 
-\section{Patrones de Diseño Aplicados}
-
-\subsection{Factory Method}
-El patrón Factory se utiliza para la creación de instancias de juegos. La clase \texttt{JuegoFactory} encapsula la lógica de instanciación, permitiendo crear objetos complejos (como un \texttt{JuegoRol} con todas sus configuraciones) a partir de una simple cadena de texto ("RPG", "Rol"). Esto desacopla la creación de objetos de su uso.
-
-\subsection{Strategy}
-Se emplea el patrón Strategy para definir familias de algoritmos intercambiables.
+\subsection{Lógica de Presentación}
+El frontend no es estático; reacciona a los datos del backend.
 \begin{itemize}
-    \item \textbf{Matchmaking:} Estrategias como \texttt{MatchmakingAleatorio} y \texttt{MatchmakingPorRango} permiten cambiar la lógica de emparejamiento sin modificar la clase principal.
-    \item \textbf{Monetización:} Estrategias como \texttt{MonetizacionPremium}, \texttt{MonetizacionF2P} y \texttt{MonetizacionDescuento} gestionan dinámicamente los precios.
+    \item \textbf{Bucles:} Iteramos sobre listas de objetos (ej. \texttt{\{\% for juego in juegos \%\}}) para generar tarjetas de productos dinámicamente.
+    \item \textbf{Condicionales:} Mostramos elementos diferentes según el estado del usuario (ej. Botón "Login" vs "Logout").
 \end{itemize}
 
-\subsection{Observer}
-El patrón Observer es fundamental para el sistema de eventos. La clase \texttt{PlataformaVideojuegos} actúa como \texttt{Subject}, notificando a los observadores cuando ocurren eventos clave.
+\section{Estilo y Experiencia de Usuario (CSS)}
+El diseño visual se ha implementado con CSS3 nativo, utilizando \textbf{Flexbox} y \textbf{CSS Grid} para un diseño responsivo. Se ha priorizado una estética "Dark Mode" minimalista, típica de plataformas gaming, eliminando el ruido visual para centrar la atención en el contenido.
+
+\chapter{Patrones de Diseño Implementados}
+
+\section{Factory Method (Patrón Creacional)}
+\subsection{Problema}
+La creación de objetos de juego puede volverse compleja si el cliente necesita conocer todas las clases concretas (\texttt{JuegoRol}, \texttt{JuegoEstrategia}, etc.) y sus dependencias. Además, el sistema recibe un string ("RPG") desde el formulario web, no una clase.
+
+\subsection{Solución}
+La clase \texttt{JuegoFactory} centraliza la lógica de instanciación. Utiliza un mapeo condicional (que podría optimizarse a un diccionario hashmap para $O(1)$) para retornar la instancia correcta.
+
+\begin{lstlisting}[language=Python, caption=Implementación del Factory]
+class JuegoFactory:
+    @staticmethod
+    def crear_juego(tipo, titulo, ...):
+        tipo = tipo.lower()
+        if tipo in ["rol", "rpg"]:
+            return JuegoRol(titulo, ...)
+        elif tipo in ["accion", "shooter"]:
+            return JuegoAccion(titulo, ...)
+        # ...
+        raise ValueError("Tipo desconocido")
+\end{lstlisting}
+
+\subsection{Justificación Académica}
+Este patrón desacopla la lógica de creación de la lógica de uso. Si mañana cambiamos la implementación de \texttt{JuegoRol} o añadimos \texttt{JuegoVR}, solo modificamos la fábrica, no todo el código que instancia juegos.
+
+\section{Strategy (Patrón de Comportamiento)}
+\subsection{Problema}
+El sistema necesita diferentes algoritmos para tareas como el matchmaking o el cálculo de precios, y estos deben poder cambiar en tiempo de ejecución (por ejemplo, un evento de "Hora Feliz" que cambia los precios).
+
+\subsection{Solución}
+Definimos familias de algoritmos encapsulados en clases.
 \begin{itemize}
-    \item \textbf{SistemaLogros:} Escucha eventos como "partida\_terminada" para otorgar logros a los usuarios. Implementa lógica probabilística para logros raros.
-    \item \textbf{SistemaActualizaciones:} Reacciona al lanzamiento de juegos para programar parches.
+    \item \textbf{MatchmakingStrategy:} \texttt{MatchmakingAleatorio} vs \texttt{MatchmakingPorRango}.
+    \item \textbf{MonetizacionStrategy:} \texttt{MonetizacionPremium} vs \texttt{MonetizacionDescuento}.
 \end{itemize}
 
-\section{Optimización y Eficiencia (Mejoras Realistas)}
-En un entorno de producción real, el acceso constante a la base de datos para información estática es ineficiente. Se han implementado mejoras de rendimiento utilizando técnicas de caché.
+\begin{lstlisting}[language=Python, caption=Uso de Strategy en Plataforma]
+def comprar_item(self, ...):
+    # ...
+    estrategia_cobro = MonetizacionDescuento() # Podria ser dinamico
+    precio_final = estrategia_cobro.calcular_precio(item_data['price'])
+\end{lstlisting}
 
-\subsection{LRU Cache (Least Recently Used)}
-Se ha integrado \texttt{functools.lru\_cache} en los servicios de lectura intensiva.
+\subsection{Justificación Académica}
+El patrón Strategy elimina las sentencias condicionales complejas (\texttt{if/else}) dentro de las clases principales, promoviendo un código más limpio y testeable. Permite cambiar el comportamiento de un objeto sin cambiar su clase.
+
+\section{Observer (Patrón de Comportamiento)}
+\subsection{Problema}
+Necesitamos que ciertos subsistemas (Logros, Análisis, Actualizaciones) reaccionen a eventos que ocurren en el núcleo de la plataforma (como terminar una partida o comprar un juego) sin acoplar fuertemente estos subsistemas.
+
+\subsection{Solución}
+La clase \texttt{PlataformaVideojuegos} actúa como \texttt{Subject} (Sujeto). Mantiene una lista de observadores y los notifica cuando ocurre un evento.
+
+\begin{lstlisting}[language=Python, caption=Sistema de Logros con Observer]
+class SistemaLogros(Observer):
+    def actualizar(self, evento, datos):
+        if evento == "partida_terminada":
+            # Logica probabilistica para logros raros
+            if random.random() < 0.01:
+                self._otorgar_logro(..., "Invencible", ...)
+\end{lstlisting}
+
+\subsection{Justificación Académica}
+Este patrón es esencial para sistemas dirigidos por eventos. Permite añadir nuevos "escuchas" (por ejemplo, un sistema de envío de correos) sin tocar una sola línea de la lógica de la plataforma principal.
+
+\chapter{Desafíos de Implementación y Soluciones}
+
+Durante el ciclo de desarrollo, nos enfrentamos a varios desafíos técnicos que requirieron soluciones creativas y refactorización de código.
+
+\section{Manejo de Cadenas en el Factory}
+Uno de los primeros problemas encontrados fue la rigidez en la creación de juegos. Inicialmente, el \texttt{JuegoFactory} esperaba cadenas exactas como "RPG". Si un usuario ingresaba "rpg" o "Rol", el sistema lanzaba un \texttt{ValueError}.
+\textbf{Solución:} Implementamos una normalización de entradas utilizando \texttt{.lower()} y listas de alias. Esto mejoró la experiencia de usuario (UX) al hacer el sistema más tolerante a variaciones en la entrada.
+
+\section{Evolución de la Interfaz de Usuario (UI)}
+El diseño visual sufrió varias iteraciones. Inicialmente, se intentó replicar la estética de plataformas como Steam con accesos directos y emojis. Sin embargo, tras pruebas de usabilidad, se determinó que estos elementos sobrecargaban la interfaz y restaban profesionalismo.
+\textbf{Decisión:} Se optó por una interfaz minimalista y limpia, eliminando emojis y secciones redundantes, priorizando la claridad de la información y la velocidad de carga.
+
+\section{Aleatoriedad en Sistemas Deterministas}
+El patrón Observer es inherentemente determinista (Evento A dispara Acción B). Sin embargo, queríamos que el sistema de logros se sintiera orgánico y sorprendente.
+\textbf{Solución:} Introdujimos lógica probabilística dentro de los observadores. Al terminar una partida, no solo se otorga el logro estándar, sino que se ejecutan tiradas de probabilidad (ej. 30\% para un logro raro) utilizando el módulo \texttt{random}. Esto añade una capa de "gamificación" al propio sistema.
+
+\chapter{Optimización y Eficiencia: Escenarios Reales}
+
+\section{El Problema de la Latencia en Bases de Datos}
+En una aplicación web real, la operación más costosa suele ser la I/O (Entrada/Salida), específicamente las consultas a la base de datos. Si nuestra plataforma tiene 10,000 usuarios concurrentes visitando la página de inicio, realizar 10,000 consultas SQL idénticas para obtener la lista de juegos es un desperdicio de recursos (CPU, Memoria, Red) y aumenta la latencia exponencialmente.
+
+\section{Implementación de LRU Cache}
+Para mitigar esto, hemos implementado una caché LRU (Least Recently Used) utilizando el decorador \texttt{@lru\_cache} de Python. Esta estructura de datos es ideal porque mantiene en memoria los elementos más accedidos y descarta los menos usados cuando se alcanza el límite de capacidad.
+
+\begin{lstlisting}[language=Python, caption=Caché en Servicios]
+@lru_cache(maxsize=32)
+def listar_juegos(self):
+    print("[CACHE MISS] Consultando DB...")
+    return Game.query.all()
+\end{lstlisting}
+
+\subsection{Análisis Algorítmico y Estructural}
 \begin{itemize}
-    \item \textbf{Listado de Juegos:} La función \texttt{listar\_juegos} ahora cachea sus resultados. Esto reduce drásticamente la latencia en la página principal, ya que el catálogo de juegos no cambia milisegundo a milisegundo.
-    \item \textbf{Microtransacciones:} La obtención de ítems de venta (\texttt{obtener\_items\_venta}) también está cacheada, agilizando la tienda virtual.
+    \item \textbf{Sin Caché:} Complejidad $O(N)$ por petición, donde N incluye el tiempo de conexión, ejecución de query y transferencia de datos.
+    \item \textbf{Con Caché:} Complejidad $O(1)$ amortizado. Internamente, \texttt{lru\_cache} utiliza un \textbf{Diccionario (Hash Map)} para búsquedas en $O(1)$ y una \textbf{Lista Doblemente Enlazada} para mantener el orden de uso. Cuando se accede a un elemento, se mueve al frente de la lista en $O(1)$. Cuando la caché se llena, se elimina el elemento de la cola (el menos usado) también en $O(1)$.
 \end{itemize}
 
-\subsection{Invalidación de Caché}
-Para mantener la consistencia de datos, se ha implementado una estrategia de invalidación de caché. Cuando se registra un nuevo juego mediante \texttt{registrar\_juego}, se fuerza la limpieza de la caché de \texttt{listar\_juegos}, asegurando que los usuarios siempre vean el catálogo actualizado sin sacrificar rendimiento en las lecturas subsiguientes.
+\section{Estrategia de Invalidación de Caché}
+La caché introduce el problema de la "consistencia de datos". Si añadimos un juego nuevo a la base de datos, la caché en memoria seguirá teniendo la lista antigua. Para resolver esto, implementamos una invalidación explícita:
 
-\section{Conclusión}
-El sistema resultante es una demostración completa de cómo los patrones de diseño y las estructuras de datos adecuadas pueden resolver problemas complejos de ingeniería de software. La inclusión de optimizaciones como LRU Cache acerca el proyecto a un escenario de "vida real", donde la eficiencia es tan crítica como la funcionalidad.
+\begin{lstlisting}[language=Python, caption=Invalidación de Caché]
+def registrar_juego(self, ...):
+    # ... guardar en DB ...
+    self.listar_juegos.cache_clear() # Invalida la cache forzando una recarga
+\end{lstlisting}
+
+Esto garantiza que el sistema sea \textbf{Eventualmente Consistente} (o fuertemente consistente en este caso, ya que invalidamos inmediatamente tras la escritura). Esta técnica es estándar en la industria para sistemas de alto tráfico donde la lectura supera ampliamente a la escritura (Read-Heavy Workloads).
+
+\chapter{Persistencia y Seguridad}
+
+\section{Modelo Relacional con SQLAlchemy}
+Se ha diseñado un esquema de base de datos normalizado:
+\begin{itemize}
+    \item \textbf{Users:} Almacena credenciales y metadatos.
+    \item \textbf{Games:} Catálogo de productos.
+    \item \textbf{Purchases:} Tabla transaccional que vincula Users y Games (Relación N:M implícita).
+    \item \textbf{Achievements:} Registro de logros desbloqueados.
+\end{itemize}
+
+\section{Seguridad en Autenticación}
+No se almacenan contraseñas en texto plano. Se utiliza \texttt{werkzeug.security} para generar hashes seguros (PBKDF2 o similar por defecto).
+\begin{lstlisting}[language=Python]
+generate_password_hash(password)
+check_password_hash(user.password_hash, password)
+\end{lstlisting}
+Esto protege la integridad de las cuentas de usuario incluso si la base de datos es comprometida.
+
+\chapter{Manual de Usuario y Guía de Operación}
+
+Este capítulo sirve como guía detallada para la interacción con el sistema, diseñada para facilitar la evaluación del docente y la operación por parte de los usuarios finales. Se describen los flujos de trabajo para los dos roles principales: Administrador y Jugador.
+
+\section{Despliegue e Inicio}
+El sistema ha sido diseñado para operar tanto en entornos locales de desarrollo como en servidores de producción en la nube.
+
+\subsection{Entorno Local}
+Para iniciar el servidor de desarrollo y poner en marcha la plataforma, se debe ejecutar el comando principal en la terminal dentro del directorio del proyecto:
+\begin{lstlisting}[language=bash]
+python app.py
+\end{lstlisting}
+El sistema inicializará la base de datos SQLite, configurará los observadores y estará accesible por defecto en \texttt{http://127.0.0.1:5000}.
+
+\subsection{Entorno de Producción (Deploy)}
+Como parte del alcance del proyecto, se ha realizado un despliegue exitoso en la plataforma \textbf{Render}, demostrando la viabilidad del sistema en un entorno web real accesible públicamente.
+\begin{itemize}
+    \item \textbf{URL del Proyecto:} \url{https://biblioteca-bcc5.onrender.com/}
+\end{itemize}
+
+\section{Perfil de Administrador}
+El rol de administrador es crítico para la gestión del ecosistema. Su responsabilidad principal es poblar y mantener el catálogo de juegos, activando las lógicas de fábrica y notificación.
+
+\subsection{Credenciales de Acceso (Importante)}
+Para facilitar la evaluación del docente y el acceso a las funciones privilegiadas, el sistema cuenta con un usuario administrador pre-configurado:
+\begin{itemize}
+    \item \textbf{Usuario:} \texttt{admin}
+    \item \textbf{Contraseña:} \texttt{123}
+\end{itemize}
+Estas credenciales permiten el acceso inmediato al panel de control sin necesidad de registro previo.
+
+\subsection{Gestión del Catálogo de Juegos}
+El administrador interactúa directamente con el \textbf{Factory Method} a través de la interfaz de registro.
+\begin{enumerate}
+    \item \textbf{Acceso:} Navegar a la sección de "Registrar Juego" en el panel de administración.
+    \item \textbf{Ingreso de Datos Críticos:}
+    \begin{itemize}
+        \item \textbf{Título y Desarrollador:} Metadatos descriptivos.
+        \item \textbf{Género (Input del Factory):} Este es el campo más importante. El administrador puede ingresar términos flexibles como "RPG", "Rol", "Action", "Shooter" o "Estrategia". El sistema interpretará estos strings y, mediante \texttt{JuegoFactory}, instanciará la clase concreta correcta (\texttt{JuegoRol}, \texttt{JuegoAccion}, etc.) asignando las interfaces correspondientes (\texttt{Multijugador}, \texttt{ConMicrotransacciones}).
+        \item \textbf{Precio:} Establece la base para las estrategias de monetización.
+    \end{itemize}
+    \item \textbf{Confirmación y Efectos Colaterales:} Al guardar el juego, ocurren dos procesos invisibles pero críticos:
+    \begin{itemize}
+        \item \textbf{Invalidación de Caché:} Se limpia la memoria de \texttt{lru\_cache} para asegurar que todos los usuarios vean el nuevo juego inmediatamente.
+        \item \textbf{Notificación (Observer):} El \texttt{SistemaActualizaciones} detecta el lanzamiento y simula la verificación de parches de día 1 en la consola del servidor.
+    \end{itemize}
+\end{enumerate}
+
+\section{Perfil de Usuario (Jugador)}
+La experiencia del usuario final está diseñada para ser inmersiva, permitiendo probar la lógica de negocio aleatoria y los sistemas de persistencia.
+
+\subsection{Registro y Autenticación}
+El usuario comienza creando una cuenta. El sistema solicita credenciales que son procesadas mediante \textbf{hashing seguro (PBKDF2)} antes de ser almacenadas. Esto simula un entorno de producción real donde la seguridad es prioritaria.
+
+Para pruebas rápidas sin necesidad de registro, se ha habilitado un usuario jugador pre-configurado:
+\begin{itemize}
+    \item \textbf{Usuario:} \texttt{Jaze\_HPC}
+    \item \textbf{Contraseña:} \texttt{hola123}
+\end{itemize}
+
+\subsection{Biblioteca y Tienda}
+Una vez autenticado, el usuario accede al catálogo.
+\begin{itemize}
+    \item \textbf{Prueba de Rendimiento:} El usuario notará que la carga de la biblioteca es instantánea en visitas subsecuentes, demostrando la eficacia de la optimización por caché implementada en el backend.
+\end{itemize}
+
+\subsection{Simulación de Partida (Gameplay)}
+Al seleccionar "Jugar" en un título de su biblioteca:
+\begin{enumerate}
+    \item El sistema invoca el método polimórfico \texttt{iniciar()} específico del tipo de juego (ej. "Cargando motor de físicas" para Acción vs "Cargando tablero" para Estrategia).
+    \item Se dispara el evento \texttt{partida\_terminada} hacia los observadores.
+    \item \textbf{Sistema de Logros Probabilístico:} Aquí entra en juego la lógica aleatoria. El usuario no solo recibe el logro estándar "Primeros Pasos", sino que el sistema "tira los dados":
+    \begin{itemize}
+        \item Tiene un \textbf{30\% de probabilidad} de desbloquear un logro Raro ("Suerte de Principiante").
+        \item Tiene un \textbf{10\% de probabilidad} de desbloquear un logro Épico ("Leyenda Urbana").
+    \end{itemize}
+    \item Se recomienda al usuario jugar múltiples veces para intentar "farmear" estos logros aleatorios y verlos reflejados en su perfil.
+\end{enumerate}
+
+\subsection{Microtransacciones y Economía}
+Si el usuario juega un título que implementa la interfaz \texttt{ConMicrotransacciones} (como un RPG):
+\begin{enumerate}
+    \item Puede acceder a la tienda interna del juego desde su biblioteca.
+    \item Al comprar un ítem, el sistema aplica el patrón \textbf{Strategy}. Dependiendo de la configuración del backend (que puede cambiar dinámicamente), el usuario podría recibir un descuento sorpresa o pagar el precio completo, simulando una economía de juego viva.
+\end{enumerate}
+
+\chapter{Conclusiones}
+
+El desarrollo de este proyecto ha permitido integrar de manera cohesiva los conceptos teóricos de Estructuras de Datos no Lineales y Diseño de Software. Hemos pasado de diagramas de clases abstractos a una implementación funcional que no solo cumple con los requisitos funcionales (jugar, comprar, logros), sino que también aborda requisitos no funcionales críticos como la mantenibilidad (mediante Patrones de Diseño) y el rendimiento (mediante Caché y Algoritmos eficientes).
+
+La arquitectura resultante es modular, testeable y escalable, simulando fielmente las prácticas de ingeniería requeridas en la industria del desarrollo de software profesional.
 
 \end{document}
