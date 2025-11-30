@@ -50,6 +50,21 @@
         {{ mensaje }}
     </div>
     {% endif %}
+
+    {% if logros %}
+    <div class="card" style="margin-top: 30px;">
+        <h3>🏆 Tus Logros Desbloqueados</h3>
+        <div class="items-grid">
+            {% for logro in logros %}
+            <div class="item-card" style="border-color: #f1c40f;">
+                <h4 style="color: #f39c12;">{{ logro.name }}</h4>
+                <p><strong>Juego:</strong> {{ logro.game_title }}</p>
+                <p><small>{{ logro.description }}</small></p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <div id="calificarModal" class="card" style="display:none; margin-top:20px; border: 2px solid #3498db;">

@@ -12,6 +12,7 @@
                 <th>Precio</th>
                 <th>Tipo</th>
                 <th>Plataforma</th>
+                <th>Calificacion</th>
             </tr>
         </thead>
         <tbody>
@@ -22,6 +23,9 @@
                 <td>${{ juego.precio }}</td>
                 <td>{{ juego.tipo }}</td>
                 <td>{{ juego.plataforma }}</td>
+                <td>
+                    <span style="color: #f1c40f;">★</span> {{ juego.rating_promedio }} / 5
+                </td>
             </tr>
             {% endfor %}
         </tbody>

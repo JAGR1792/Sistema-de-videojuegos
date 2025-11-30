@@ -171,7 +171,22 @@ class PlataformaVideojuegos(Subject):
         # 3. Cargar Progreso (Polimorfico)
         logs.append(f"CARGA: {juego_logico.cargar_progreso(usuario.id)}")
         
+        # Notificar evento para logros
+        self.notificar_observers("partida_terminada", {"usuario": usuario.username, "juego": titulo_juego})
+        
         return logs
+
+    def obtener_logros_usuario(self, user_id):
+        from src.models.entities import Achievement
+        return Achievement.query.filter_by(user_id=user_id).all()
+
+    def obtener_promedio_juego(self, game_id):
+        # Usamos la estrategia de puntuacion
+        ratings = Rating.query.filter_by(game_id=game_id).all()
+        scores = [r.score for r in ratings]
+        
+        estrategia = PuntuacionPromedioSimple()
+        return estrategia.calcular_puntuacion_final(scores)
             
     # Metodos Admin
     def obtener_usuarios(self):

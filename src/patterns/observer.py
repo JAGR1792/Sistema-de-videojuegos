@@ -19,10 +19,32 @@ class Subject:
         for observer in self._observers:
             observer.actualizar(evento, datos)
 
+from src.models.db import db
+from src.models.entities import Achievement, User
+
 class SistemaLogros(Observer):
     def actualizar(self, evento, datos):
-        if evento == "partida_terminada":
-            print(f"[LOGROS] Verificando logros para usuario {datos['usuario']} tras finalizar partida.")
+        # Logica simple de logros basada en eventos
+        if evento == "compra_realizada":
+            self._otorgar_logro(datos['usuario'], datos['juego'], "Comprador Compulsivo", "Realizaste tu primera compra.")
+        elif evento == "partida_terminada":
+            self._otorgar_logro(datos['usuario'], datos['juego'], "Primeros Pasos", "Jugaste tu primera partida.")
+        elif evento == "actualizacion_realizada":
+            # Este evento no suele dar logros al usuario, pero podria
+            pass
+
+    def _otorgar_logro(self, username, juego_titulo, nombre_logro, descripcion):
+        # Necesitamos el contexto de la app para escribir en DB si se ejecuta asincrono, 
+        # pero aqui corre en el mismo hilo request
+        user = User.query.filter_by(username=username).first()
+        if user:
+            # Verificar si ya tiene el logro
+            existe = Achievement.query.filter_by(user_id=user.id, game_title=juego_titulo, name=nombre_logro).first()
+            if not existe:
+                nuevo_logro = Achievement(user_id=user.id, game_title=juego_titulo, name=nombre_logro, description=descripcion)
+                db.session.add(nuevo_logro)
+                db.session.commit()
+                print(f"[LOGROS] Logro desbloqueado para {username}: {nombre_logro}")
 
 class SistemaActualizaciones(Observer):
     def actualizar(self, evento, datos):

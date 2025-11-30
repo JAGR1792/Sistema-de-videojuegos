@@ -12,6 +12,7 @@ class User(db.Model):
     # Relaciones
     purchases = db.relationship('Purchase', backref='user', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
+    achievements = db.relationship('Achievement', backref='user', lazy=True)
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,4 +49,13 @@ class Rating(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.String(200))
+
+class Achievement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    game_title = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200))
+    date_unlocked = db.Column(db.DateTime, default=datetime.utcnow)
     comment = db.Column(db.String(200))

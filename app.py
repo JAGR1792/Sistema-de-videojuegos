@@ -122,7 +122,15 @@ def logout():
 @login_required
 def games():
     lista_juegos = plataforma.listar_juegos()
-    return render_template('games.html', juegos=lista_juegos)
+    # Enriquecer con calificaciones calculadas via Strategy
+    juegos_con_rating = []
+    for juego in lista_juegos:
+        rating = plataforma.obtener_promedio_juego(juego['id'])
+        juego_dict = juego.copy()
+        juego_dict['rating_promedio'] = round(rating, 1)
+        juegos_con_rating.append(juego_dict)
+        
+    return render_template('games.html', juegos=juegos_con_rating)
 
 @app.route('/admin', methods=['GET'])
 @admin_required
@@ -193,7 +201,9 @@ def buy_item():
 @app.route('/library', methods=['GET'])
 @login_required
 def library():
-    return render_template('library.html', juegos=plataforma.listar_juegos())
+    user_id = session['user_id']
+    logros = plataforma.obtener_logros_usuario(user_id)
+    return render_template('library.html', juegos=plataforma.listar_juegos(), logros=logros)
 
 @app.route('/library/update', methods=['POST'])
 @login_required
